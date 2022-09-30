@@ -166,3 +166,7 @@ export const Button = ({
   );
 };
 ```
+
+# Memo
+
+PostCSS は初めから storybook に組み込まれているようだ。バージョンが上がって PostCSS 8 を使うようになったようで、以前のように特別なにか設定が必要ということはない。
