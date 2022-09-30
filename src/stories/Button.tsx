@@ -34,11 +34,22 @@ export const Button = ({
   label,
   ...props
 }: ButtonProps) => {
-  const mode = primary ? 'storybook-button--primary' : 'storybook-button--secondary';
   return (
     <button
       type="button"
-      className={['storybook-button', `storybook-button--${size}`, mode].join(' ')}
+      className={[
+        'inline-block border-2 rounded-3xl leading-none cursor-pointer',
+        'font-sans font-bold',
+        (primary ?
+          'border-sky-400 text-white bg-sky-400' :
+          'border-gray-200 text-gray-700 bg-white'
+        ),
+        {
+          small: 'px-4 py-2 text-sm',
+          medium: 'px-5 py-2.5 text-base',
+          large: 'px-6 py-3 text-lg',
+        }[size]
+      ].join(' ')}
       style={{ backgroundColor }}
       {...props}
     >
