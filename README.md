@@ -1,46 +1,168 @@
-# Getting Started with Create React App
+# TypeScript + React + TailwindCSS + Storybook でコンポーネントカタログを作る
+# 経緯
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+デザイナさんにコンポーネントまで作ってもらえるとエンジニアは非常に助かります。
 
-## Available Scripts
+# スタック
 
-In the project directory, you can run:
+今回使うもの
 
-### `npm start`
+- [TypeScript](https://www.typescriptlang.org/)
+    - 型付き JavaScript。型がついているのでコンパイル時に間違いを検出できる。堅牢なフロントエンド開発には必須。
+- [React](https://ja.reactjs.org/)
+    - Web UI を構築するためのライブラリ。HTML/CSS/JavaScript を組み合わせて画面の部品を作ることができる。
+    - 部品に動きを付ける目的のライブラリとして JQuery というものもある。これは React とは異なり手続型と呼ばれるアプローチをとっている。ユーザのクリックやデータの到着といったイベントに応じてそれぞれの部品をどのように変化させるかを記述する。
+    - これに対して React は、ある状態の場合、ある部品はこういった状態である、という形式で記述をする。この記述のアプローチを宣言型と呼ぶ。
+    - 同じ宣言型のライブラリとして vue がある。
+- [TailwindCSS](https://tailwindcss.com/)
+    - CSS ライブラリ。膨大で複雑な CSS を整理して使いやすくしてくれている。
+    - CSS の挙動は非常にわかりにくくなりやすいのでこのようなライブラリがある。
+        - ただ書き方でカバーされる部分が大きいので、ドキュメントなどを読んで正しい書き方の感覚をつかもう。
+    - 慣れると素の CSS よりかなり楽なはず……
+- [Storybook](https://storybook.js.org/docs/react/why-storybook)
+    - React のコンポーネントカタログを作成するためのフレームワーク
+    - コンポーネントを動作する形でカタログとして見せることができる
+    - コンポーネントのバリエーションを出したり、パラメータを UI から変えたりといったこともできる。
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+## 補足
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+今回は使わないけどアプリ使う場合によく出てくる。
 
-### `npm test`
+- [Next.js](https://nextjs.org/docs/getting-started)
+    - React のフロントエンドフレームワーク
+    - フロントエンド作成する場合に必要な機能がおよそ全部入っていて楽
+    - なんちゃってバックエンドも作れるので小規模ならバックエンドなしでこれ一つで行ける
+- [T3 Stack](https://github.com/t3-oss/create-t3-app)
+    - 上で出たライブラリとあといくつか必要なのを足していい感じのフロントエンドを作れる環境ビルダ
+    - 大体そうそうこんなのがいいよねってみんな賛同すると思う
+- [アクセシビリティ](https://developer.mozilla.org/ja/docs/Learn/Accessibility)
+    - 余力が出てきたらやりたい部分。
+    - 情報化時代のハンディキャップは肉体的なものだけではなく回線やマシンの速度、ディスプレイのサイズや解像度も含まれる……
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+# 環境構築
 
-### `npm run build`
+以下の前提で進めます:
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+- Mac や WSL のターミナルを使える
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+## nodejs & yarn のインストール
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+[anyenv](https://github.com/anyenv/anyenv) 使って [nodenv](https://github.com/nodenv/nodenv) 入れて [nodejs のサイト](https://nodejs.org/ja/)の最新の推奨版を入れるのが良いと思います。
 
-### `npm run eject`
+anyenv を使う場合は [anyenv-update](https://github.com/znz/anyenv-update) も入れた方が良いです。
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+`npm i -g yarn` を実行して yarn を使えるようにしましょう。
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+## プロジェクトのセットアップ
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+- React プロジェクトの作成
+    - `npx create-react-app react-ts-taiwindcss-storybook-sample --template typescript`
+        - TypeScript + React のプロジェクトが作成されます
+        - `react-ts-taiwindcss-storybook-sample` は自分が作りたいプロジェクトの名前にしてください。
+- TailwindCSS のインストール
+    - `yarn add -D tailwindcss postcss autoprefixer`
+    - `npx tailwindcss init -p`
+        - 設定
+            - tailwind.config.js
+            
+            ```jsx
+            /** @type {import('tailwindcss').Config} */
+            module.exports = {
+              content: [
+                "./src/**/*.{js,jsx,ts,tsx}", // この行を追加
+              ],
+              theme: {
+                extend: {},
+              },
+              plugins: [],
+            }
+            ```
+            
+            - 参考: [https://tailwindcss.com/docs/guides/create-react-app](https://tailwindcss.com/docs/guides/create-react-app)
+- Storybook のインストール
+    - `npx storybook init`
+    - 設定
+        - .storybook/preview.js
+        
+        ```jsx
+        import "../src/index.css"; // この行を追加
+        
+        export const parameters = {
+          actions: { argTypesRegex: "^on[A-Z].*" },
+          controls: {
+            matchers: {
+              color: /(background|color)$/i,
+              date: /Date$/,
+            },
+          },
+        }
+        ```
+        
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+これで一応つかえるようになります。試しに `yarn storybook` すると storybook が立ち上がります。
 
-## Learn More
+# Tailwind でスタイルを書く
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+試しに `src/stories/Button.tsx` を tailwind で同等の見た目に書き直してみましょう。
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+```jsx
+import React from 'react';
+import './button.css';
+
+interface ButtonProps {
+  /**
+   * Is this the principal call to action on the page?
+   */
+  primary?: boolean;
+  /**
+   * What background color to use
+   */
+  backgroundColor?: string;
+  /**
+   * How large should the button be?
+   */
+  size?: 'small' | 'medium' | 'large';
+  /**
+   * Button contents
+   */
+  label: string;
+  /**
+   * Optional click handler
+   */
+  onClick?: () => void;
+}
+
+/**
+ * Primary UI component for user interaction
+ */
+export const Button = ({
+  primary = false,
+  size = 'medium',
+  backgroundColor,
+  label,
+  ...props
+}: ButtonProps) => {
+  return (
+    <button
+      type="button"
+      className={[
+        'inline-block border-2 rounded-3xl leading-none cursor-pointer',
+        'font-sans font-bold',
+        (primary ?
+          'border-sky-400 text-white bg-sky-400' :
+          'border-gray-200 text-gray-700 bg-white'
+        ),
+        {
+          small: 'px-4 py-2 text-sm',
+          medium: 'px-5 py-2.5 text-base',
+          large: 'px-6 py-3 text-lg',
+        }[size]
+      ].join(' ')}
+      style={{ backgroundColor }}
+      {...props}
+    >
+      {label}
+    </button>
+  );
+};
+```
